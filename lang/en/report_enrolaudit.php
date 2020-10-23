@@ -23,11 +23,13 @@
  */
 
 
-$string['pluginname'] = 'Enrolment audit';
-$string['enrolaudit'] = 'Enrolment audit';
-$string['changedby'] = 'Changed by';
-$string['timemodified'] = 'Time modified';
 $string['change'] = 'Change';
 $string['changedby'] = 'Changed by';
-
-$string['userenrolmentcreated'] = 'New user enrolment';
+$string['enrolaudit'] = 'Enrolment audit';
+$string['enrolmentactive'] = 'User enrolment set to active';
+$string['enrolmentcreated'] = 'User enrolment created';
+$string['enrolmentdeleted'] = 'User enrolment deleted';
+$string['enrolmentsuspended'] = 'User enrolment set to suspended';
+$string['form:coursename'] = 'Course name';
+$string['pluginname'] = 'Enrolment audit';
+$string['timemodified'] = 'Time modified';

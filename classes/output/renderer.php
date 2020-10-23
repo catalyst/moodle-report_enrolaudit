@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Event observer for report_enrolaudit.
+ * Renderer for enrol audit report.
  *
  * @package    report_enrolaudit
  * @copyright  2020 Catalyst IT {@link http://www.catalyst.net.nz}
@@ -25,30 +25,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Event observer for report_enrolaudit.
+ * Renderer class for enrol audit report.
  *
  * @package    report_enrolaudit
  * @copyright  2020 Catalyst IT {@link http://www.catalyst.net.nz}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_enrolaudit_renderer extends plugin_renderer_base {
-
-    /**
-     * Output the course selector for the enrol audit report.
-     *
-     * @param \report_enrolaudit\enrolaudit $report
-     */
-    public function print_course_selector($report) {
-        global $DB;
-
-        $courses = $DB->get_records_menu('course', null, '', 'id, fullname');
-        $courses = array_merge([0=> get_string('none')], $courses);
-
-        $select = new single_select(new moodle_url($report->get_baseurl()), 'id', $courses, $report->get_courseid(), null);
-        $select->set_label(get_string('course'));
-
-        echo $this->output->render($select);
-    }
 
     /**
      * Output the user selector for the enrol audit report.
@@ -59,12 +42,11 @@ class report_enrolaudit_renderer extends plugin_renderer_base {
         global $DB;
 
         $sql = "
-            SELECT DISTINCT 
+            SELECT DISTINCT
                 u.id,
                 CONCAT(u.firstname, ' ', u.lastname) as fullname
-            FROM {user_enrolments} ue
-                JOIN {user} u ON ue.userid = u.id
-                JOIN {report_enrolaudit} re ON re.userenrolmentid = ue.id
+            FROM {report_enrolaudit} re
+                JOIN {user} u ON re.userid = u.id
             WHERE re.change != :initialstatus
         ";
         $params = ['initialstatus' => report_enrolaudit\enrolaudit::ENROLMENT_INITIAL];
@@ -77,7 +59,7 @@ class report_enrolaudit_renderer extends plugin_renderer_base {
         $sql .= " ORDER BY fullname";
 
         $users = $DB->get_records_sql_menu($sql, $params);
-        $users = [0=> get_string('none')] + $users;
+        $users = [0 => get_string('none')] + $users;
 
         $select = new single_select(new moodle_url($report->get_baseurl()), 'userid', $users, $report->get_userid(), null);
         $select->set_label(get_string('user'));

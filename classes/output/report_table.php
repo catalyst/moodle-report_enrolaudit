@@ -14,15 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Table definition for the enrol audit report.
+ *
+ * @package    report_enrolaudit
+ * @copyright  2020 Catalyst IT {@link http://www.catalyst.net.nz}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace report_enrolaudit\output;
+
+defined('MOODLE_INTERNAL') || die;
 
 use report_enrolaudit\enrolaudit;
 use table_sql;
 
-defined('MOODLE_INTERNAL') || die;
-
 require_once("$CFG->libdir/tablelib.php");
 
+/**
+ * Class that manages how data is displayed in the enrol audit report.
+ *
+ * @package    report_enrolaudit
+ * @copyright  2020 Catalyst IT {@link http://www.catalyst.net.nz}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report_table extends table_sql {
     /**
      * Format the timemodified cell.
@@ -42,11 +57,16 @@ class report_table extends table_sql {
      */
     public function col_change($row) {
         switch ($row->change) {
-            case enrolaudit::ENROLMENT_DELETED: return 'User enrolment deleted';
-            case enrolaudit::ENROLMENT_CREATED: return 'User enrolment created';
-            case enrolaudit::ENROLMENT_STATUS_SUSPENDED: return 'User enrolment set to suspended';
-            case enrolaudit::ENROLMENT_STATUS_ACTIVE: return 'User enrolment set to active';
-            default: return '';
+            case enrolaudit::ENROLMENT_DELETED:
+                return get_string('enrolmentdeleted', 'report_enrolaudit');
+            case enrolaudit::ENROLMENT_CREATED:
+                return get_string('enrolmentcreated', 'report_enrolaudit');
+            case enrolaudit::ENROLMENT_STATUS_SUSPENDED:
+                return get_string('enrolmentsuspended', 'report_enrolaudit');
+            case enrolaudit::ENROLMENT_STATUS_ACTIVE:
+                return get_string('enrolmentactive', 'report_enrolaudit');
+            default:
+                return '';
         }
     }
 
@@ -59,5 +79,18 @@ class report_table extends table_sql {
     public function col_modifierid($row) {
         global $DB;
         return fullname($DB->get_record('user', ['id' => $row->modifierid]));
+    }
+
+    /**
+     * Format the coursename cell. Generates a link to filter by course.
+     *
+     * @param   \stdClass $row
+     * @return  string
+     */
+    public function col_coursename($row) {
+        return \html_writer::link(
+            new \moodle_url('/report/enrolaudit/index.php', ['id' => $row->courseid]),
+            $row->coursename
+        );
     }
 }

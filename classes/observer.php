@@ -45,6 +45,8 @@ class report_enrolaudit_observer {
         $record = (object) [
             'userenrolmentid' => $event->objectid,
             'courseid' => $event->courseid,
+            'userid' => $event->relateduserid,
+            'modifierid' => $event->userid,
             'change' => report_enrolaudit\enrolaudit::ENROLMENT_CREATED,
             'status' => report_enrolaudit\enrolaudit::get_current_status($event->objectid),
             'timemodified' => $event->timecreated
@@ -62,7 +64,7 @@ class report_enrolaudit_observer {
      * @return bool true on success
      */
     public static function user_enrolment_updated(\core\event\user_enrolment_updated $event) {
-        global $DB, $CFG;
+        global $DB;
 
         if (report_enrolaudit\enrolaudit::status_has_changed($event->objectid)) {
             $status = $event->get_record_snapshot('user_enrolments', $event->objectid)->status;
@@ -76,6 +78,8 @@ class report_enrolaudit_observer {
             $record = (object)[
                 'userenrolmentid' => $event->objectid,
                 'courseid' => $event->courseid,
+                'userid' => $event->relateduserid,
+                'modifierid' => $event->userid,
                 'change' => $change,
                 'status' => $status,
                 'timemodified' => $event->timecreated
@@ -99,8 +103,10 @@ class report_enrolaudit_observer {
         $record = (object) [
             'userenrolmentid' => $event->objectid,
             'courseid' => $event->courseid,
+            'userid' => $event->relateduserid,
+            'modifierid' => $event->userid,
             'change' => report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
-            'status' => report_enrolaudit\enrolaudit::get_current_status($event->objectid),
+            'status' => $event->other['userenrolment']['status'],
             'timemodified' => $event->timecreated
         ];
 

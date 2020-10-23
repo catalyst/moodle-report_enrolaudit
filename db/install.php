@@ -30,7 +30,7 @@ function xmldb_report_enrolaudit_install() {
     // Populate the log table with current status.
     // This is needed as a point of comparison when there's a new change.
     // The initial record gets stored with a change status that won't appear in the report.
-    $rs = $DB->get_recordset('user_enrolments', null, '', 'id, enrolid, status, timemodified');
+    $rs = $DB->get_recordset('user_enrolments');
 
     foreach ($rs as $record) {
         $courseid = $DB->get_field('enrol', 'courseid', ['id' => $record->enrolid]);
@@ -38,6 +38,8 @@ function xmldb_report_enrolaudit_install() {
         $log = (object)[
           'userenrolmentid' => $record->id,
           'courseid' => $courseid,
+          'userid' => $record->userid,
+          'modifierid' => $record->modifierid,
           'change' => \report_enrolaudit\enrolaudit::ENROLMENT_INITIAL,
           'status' => $record->status,
           'timemodified' => $record->timemodified,

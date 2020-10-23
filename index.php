@@ -29,14 +29,15 @@ require_once($CFG->dirroot.'/lib/tablelib.php');
 global $DB, $PAGE, $OUTPUT;
 
 // Page parameters.
-$id       = optional_param('id', 0, PARAM_INT);// Course ID.
-$userid   = optional_param('userid', 0, PARAM_INT);// Course ID.
-$user     = optional_param('user', 0, PARAM_INT); // User to display.
-$perpage  = optional_param('perpage', 30, PARAM_INT);    // how many per page
-$download = optional_param('download', '', PARAM_ALPHA);
+$id       = optional_param('id', 0, PARAM_INT); // Course ID.
+$userid   = optional_param('userid', 0, PARAM_INT); // User ID.
+$perpage  = optional_param('perpage', 30, PARAM_INT); // How many results per page.
+$download = optional_param('download', '', PARAM_ALPHA); // Report download option.
 
+$params = [];
 $course = null;
 if (!empty($id)) {
+    // Course level.
     $params['id'] = $id;
     $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
     $context = context_course::instance($course->id);
@@ -44,18 +45,27 @@ if (!empty($id)) {
     $context = context_system::instance();
 }
 
+// Filter by userid.
+if (!empty($userid)) {
+    $params['userid'] = $userid;
+}
+
+require_login();
 require_capability('report/enrolaudit:view', $context);
 
 $heading = get_string('enrolaudit', 'report_enrolaudit');
-$url = new moodle_url('/report/enrolaudit/index.php', ['id' => $id, 'userid' => $userid]);
+$url = new moodle_url('/report/enrolaudit/index.php', $params);
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 $PAGE->set_title($heading);
+$PAGE->set_heading($heading);
+
 $output = $PAGE->get_renderer('report_enrolaudit');
 
 $enrolaudit = new report_enrolaudit\enrolaudit($course, $context, $userid, $url);
+
 $table = new report_enrolaudit\output\report_table('enrolaudit');
 $table->is_downloading($download, $enrolaudit->get_filename(), $heading);
 
@@ -63,58 +73,43 @@ $table->is_downloading($download, $enrolaudit->get_filename(), $heading);
 if (!$table->is_downloading()) {
     echo $output->header();
     echo $output->heading($heading);
-    $output->print_course_selector($enrolaudit);
-    $output->print_user_selector($enrolaudit);
+
+    if (!$id) {
+        // Site level filters.
+        $mform = new \report_enrolaudit\form\filters(null, array('sitelevel' => !(bool)$id));
+        $data = $mform->get_data();
+
+        if ($data) {
+            if ($data->firstname) {
+                $enrolaudit->set_firstname($data->firstname);
+            }
+            if ($data->lastname) {
+                $enrolaudit->set_lastname($data->lastname);
+            }
+            if ($data->coursename) {
+                $enrolaudit->set_coursename($data->coursename);
+            }
+        }
+
+        $mform->display();
+    } else {
+        // Course level filters.
+        $output->print_user_selector($enrolaudit);
+    }
 }
 
-$params['initialrecord'] = report_enrolaudit\enrolaudit::ENROLMENT_INITIAL;
+// Set up the table with the data and display it.
+$table->set_sql(
+    $enrolaudit->get_fields_sql(),
+    $enrolaudit->get_from_sql(),
+    $enrolaudit->get_where_sql(),
+    $enrolaudit->get_params()
+);
 
-$fields = "
-    re.id,
-    firstname,
-    lastname,
-    c.fullname AS coursename,
-    re.change,
-    ue.modifierid,
-    re.timemodified
-";
-$from = "{report_enrolaudit} re 
-    JOIN {user_enrolments} ue ON ue.id = re.userenrolmentid
-    JOIN {user} u ON u.id = ue.userid
-    JOIN {course} c ON c.id = re.courseid
-";
-$where = "re.change != :initialrecord";
+$table->define_columns($enrolaudit->get_columns());
+$table->define_headers($enrolaudit->get_headers());
 
-if ($id) {
-    $where .= " AND c.id = :courseid";
-    $params['courseid'] = $id;
-}
-
-if ($userid) {
-    $where .= " AND u.id = :userid";
-    $params['userid'] = $userid;
-}
-
-$table->set_sql($fields, $from, $where, $params);
-
-$table->define_columns([
-    'firstname',
-    'lastname',
-    'coursename',
-    'change',
-    'modifierid',
-    'timemodified'
-]);
-
-$table->define_headers([
-    get_string('firstname'),
-    get_string('lastname'),
-    get_string('course'),
-    get_string('change', 'report_enrolaudit'),
-    get_string('changedby', 'report_enrolaudit'),
-    get_string('timemodified', 'report_enrolaudit'),
-]);
-
+$table->sortable(true, 'timemodified', SORT_DESC);
 $table->define_baseurl($url);
 $table->build_table();
 $table->close_recordset();

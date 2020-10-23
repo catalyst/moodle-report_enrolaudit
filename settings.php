@@ -27,5 +27,5 @@ defined('MOODLE_INTERNAL') || die;
 $ADMIN->add('reports', new admin_externalpage('reportenrolaudit', get_string('enrolaudit', 'report_enrolaudit'),
     "$CFG->wwwroot/report/enrolaudit/index.php"));
 
-// no report settings
+// No report settings.
 $settings = null;
