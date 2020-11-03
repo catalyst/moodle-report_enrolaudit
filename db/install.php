@@ -25,29 +25,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_report_enrolaudit_install() {
-    global $DB;
-
-    // Populate the log table with current status.
-    // This is needed as a point of comparison when there's a new change.
-    // The initial record gets stored with a change status that won't appear in the report.
-    $rs = $DB->get_recordset('user_enrolments');
-
-    foreach ($rs as $record) {
-        $courseid = $DB->get_field('enrol', 'courseid', ['id' => $record->enrolid]);
-
-        $log = (object)[
-          'userenrolmentid' => $record->id,
-          'courseid' => $courseid,
-          'userid' => $record->userid,
-          'modifierid' => $record->modifierid,
-          'change' => \report_enrolaudit\enrolaudit::ENROLMENT_INITIAL,
-          'status' => $record->status,
-          'timemodified' => $record->timemodified,
-        ];
-
-        $DB->insert_record('report_enrolaudit', $log);
-    }
-
-    $rs->close();
+    $populatetask = new \report_enrolaudit\task\populate_enrolaudit_log_table();
+    \core\task\manager::queue_adhoc_task($populatetask);
 }
-

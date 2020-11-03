@@ -39,6 +39,37 @@ require_once("$CFG->libdir/tablelib.php");
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_table extends table_sql {
+
+    public function __construct($course) {
+        $uniqid = 'report-enrolaudit' . ($course ? '-' . $course->id : '');
+        parent::__construct($uniqid);
+
+        $headers[] = get_string('fullname');
+        $columns[] = 'fullname';
+
+        if (!$course) {
+            $headers[] = get_string('course');
+            $columns[] = 'coursename';
+        }
+
+        $columns = array_merge($columns, [
+            'change',
+            'modifierid',
+            'timemodified'
+        ]);
+
+        $headers = array_merge($headers, [
+            get_string('change', 'report_enrolaudit'),
+            get_string('changedby', 'report_enrolaudit'),
+            get_string('timemodified', 'report_enrolaudit')
+        ]);
+
+        $this->define_columns($columns);
+        $this->define_headers($headers);
+
+        $this->useridfield = 'userid';
+    }
+
     /**
      * Format the timemodified cell.
      *
@@ -65,6 +96,8 @@ class report_table extends table_sql {
                 return get_string('enrolmentsuspended', 'report_enrolaudit');
             case enrolaudit::ENROLMENT_STATUS_ACTIVE:
                 return get_string('enrolmentactive', 'report_enrolaudit');
+            case enrolaudit::ENROLMENT_UPDATED:
+                return get_string('enrolmentupdated', 'report_enrolaudit');
             default:
                 return '';
         }
@@ -77,8 +110,15 @@ class report_table extends table_sql {
      * @return  string
      */
     public function col_modifierid($row) {
-        global $DB;
-        return fullname($DB->get_record('user', ['id' => $row->modifierid]));
+        $modifier = new \stdClass();
+
+        foreach (get_all_user_name_fields() as $namefield) {
+            if (isset($row->{'modifier'.$namefield})) {
+                $modifier->$namefield = $row->{'modifier'.$namefield};
+            }
+        }
+
+        return fullname($modifier);
     }
 
     /**
@@ -92,5 +132,31 @@ class report_table extends table_sql {
             new \moodle_url('/report/enrolaudit/index.php', ['id' => $row->courseid]),
             $row->coursename
         );
+    }
+
+    /**
+     * @return array sql and parameters to add to where statement.
+     */
+    public function get_sql_where() {
+        global $DB;
+
+        $conditions = array();
+        $params = array();
+
+        if (isset($this->columns['fullname'])) {
+            static $i = 0;
+            $i++;
+
+            if (!empty($this->get_initial_first())) {
+                $conditions[] = $DB->sql_like('u.firstname', ':ifirstc'.$i, false, false);
+                $params['ifirstc'.$i] = $this->get_initial_first().'%';
+            }
+            if (!empty($this->get_initial_last())) {
+                $conditions[] = $DB->sql_like('u.lastname', ':ilastc'.$i, false, false);
+                $params['ilastc'.$i] = $this->get_initial_last().'%';
+            }
+        }
+
+        return array(implode(" AND ", $conditions), $params);
     }
 }

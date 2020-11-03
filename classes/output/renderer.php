@@ -61,8 +61,12 @@ class report_enrolaudit_renderer extends plugin_renderer_base {
         $users = $DB->get_records_sql_menu($sql, $params);
         $users = [0 => get_string('none')] + $users;
 
-        $select = new single_select(new moodle_url($report->get_baseurl()), 'userid', $users, $report->get_userid(), null);
+        $url = $report->get_baseurl();
+        $url->remove_params('userid');
+
+        $select = new single_select($url, 'userid', $users, $report->get_userid(), null);
         $select->set_label(get_string('user'));
+
         echo $this->output->render($select);
     }
 }

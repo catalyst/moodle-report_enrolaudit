@@ -41,8 +41,9 @@ class enrolaudit {
     const ENROLMENT_DELETED = 0;
     const ENROLMENT_INITIAL = 1;
     const ENROLMENT_CREATED = 2;
-    const ENROLMENT_STATUS_SUSPENDED = 3;
-    const ENROLMENT_STATUS_ACTIVE = 4;
+    const ENROLMENT_UPDATED = 3;
+    const ENROLMENT_STATUS_SUSPENDED = 4;
+    const ENROLMENT_STATUS_ACTIVE = 5;
 
     /** @var context context of the report */
     protected $context;
@@ -74,7 +75,7 @@ class enrolaudit {
      * @param object $course course object if we are in course level view.
      * @param context $context context the report is running in.
      * @param int $userid user id if report is filtered by user.
-     * @param int $baseurl base url for the report.
+     * @param \moodle_url $baseurl base url for the report.
      */
     public function __construct($course, $context, $userid, $baseurl) {
         $this->courseid = $course ? $course->id : 0;
@@ -84,73 +85,24 @@ class enrolaudit {
     }
 
     /**
-     * Get the columns needed for the report table.
-     *
-     * @return string[]
-     */
-    public function get_columns() {
-        if ($this->courseid) {
-            // Exclude the course column.
-            return [
-                'firstname',
-                'lastname',
-                'change',
-                'modifierid',
-                'timemodified'
-            ];
-        }
-        return [
-            'firstname',
-            'lastname',
-            'coursename',
-            'change',
-            'modifierid',
-            'timemodified'
-        ];
-    }
-
-    /**
-     * Get the headers for the table that match the order from get_columns.
-     *
-     * @return array
-     * @throws \coding_exception
-     */
-    public function get_headers() {
-        if ($this->courseid) {
-            // Exclude the course column.
-            return [
-                get_string('firstname'),
-                get_string('lastname'),
-                get_string('change', 'report_enrolaudit'),
-                get_string('changedby', 'report_enrolaudit'),
-                get_string('timemodified', 'report_enrolaudit'),
-            ];
-        }
-        return [
-            get_string('firstname'),
-            get_string('lastname'),
-            get_string('course'),
-            get_string('change', 'report_enrolaudit'),
-            get_string('changedby', 'report_enrolaudit'),
-            get_string('timemodified', 'report_enrolaudit'),
-        ];
-    }
-
-    /**
      * Gets the fields to SELECT for the SQL query.
      *
      * @return string
      */
     public function get_fields_sql() {
+        $userfields = get_all_user_name_fields(true, 'u');
+        $modifierfields = get_all_user_name_fields(true, 'm', '', 'modifier');
+
         return "
             re.id,
-            firstname,
-            lastname,
+            u.id AS userid,
             courseid,
             c.fullname AS coursename,
             re.change,
             modifierid,
-            re.timemodified
+            re.timemodified,
+            $userfields,
+            $modifierfields
         ";
     }
 
@@ -162,6 +114,7 @@ class enrolaudit {
     public function get_from_sql() {
         return "{report_enrolaudit} re
                     JOIN {user} u ON u.id = re.userid
+                    JOIN {user} m ON m.id = re.modifierid
                     JOIN {course} c ON c.id = re.courseid";
     }
 
@@ -193,11 +146,11 @@ class enrolaudit {
             $this->params['userid'] = $this->userid;
         }
         if ($this->firstname) {
-            $where .= " AND LOWER(firstname) LIKE :firstname";
+            $where .= " AND LOWER(u.firstname) LIKE :firstname";
             $this->params['firstname'] = '%'.strtolower($this->firstname).'%';
         }
         if ($this->lastname) {
-            $where .= " AND LOWER(lastname) LIKE :lastname";
+            $where .= " AND LOWER(u.lastname) LIKE :lastname";
             $this->params['lastname'] = '%'.strtolower($this->lastname).'%';
         }
         if ($this->coursename) {

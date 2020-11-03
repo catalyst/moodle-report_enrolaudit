@@ -30,6 +30,7 @@ $string['enrolmentactive'] = 'User enrolment set to active';
 $string['enrolmentcreated'] = 'User enrolment created';
 $string['enrolmentdeleted'] = 'User enrolment deleted';
 $string['enrolmentsuspended'] = 'User enrolment set to suspended';
+$string['enrolmentupdated'] = 'User enrolment settings updated';
 $string['form:coursename'] = 'Course name';
 $string['pluginname'] = 'Enrolment audit';
 $string['timemodified'] = 'Time modified';

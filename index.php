@@ -57,7 +57,7 @@ $heading = get_string('enrolaudit', 'report_enrolaudit');
 $url = new moodle_url('/report/enrolaudit/index.php', $params);
 
 $PAGE->set_context($context);
-$PAGE->set_url($url);
+$PAGE->set_url('/report/enrolaudit/index.php');
 $PAGE->set_pagelayout('report');
 $PAGE->set_title($heading);
 $PAGE->set_heading($heading);
@@ -66,7 +66,7 @@ $output = $PAGE->get_renderer('report_enrolaudit');
 
 $enrolaudit = new report_enrolaudit\enrolaudit($course, $context, $userid, $url);
 
-$table = new report_enrolaudit\output\report_table('enrolaudit');
+$table = new report_enrolaudit\output\report_table($course);
 $table->is_downloading($download, $enrolaudit->get_filename(), $heading);
 
 // Don't output markup if we are downloading.
@@ -105,9 +105,6 @@ $table->set_sql(
     $enrolaudit->get_where_sql(),
     $enrolaudit->get_params()
 );
-
-$table->define_columns($enrolaudit->get_columns());
-$table->define_headers($enrolaudit->get_headers());
 
 $table->sortable(true, 'timemodified', SORT_DESC);
 $table->define_baseurl($url);
