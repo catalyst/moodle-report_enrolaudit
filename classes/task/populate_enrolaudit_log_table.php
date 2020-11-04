@@ -71,14 +71,14 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
 
                                 UNION ALL
 
-                                SELECT ue.userid AS userenrolmentid, c.id AS courseid, ue.userid AS enrolleduserid,
-                                       NULL AS modifierid, ue.timecreated
+                                SELECT ue.id AS userenrolmentid, c.id AS courseid, ue.userid AS enrolleduserid,
+                                       0 AS modifierid, ue.timecreated
                                   FROM {user_enrolments} ue
                                   JOIN {enrol} e ON ue.enrolid = e.id
                                   JOIN {course} c ON e.courseid = c.id
                                  WHERE ue.id NOT IN (
                                      SELECT objectid
-                                       FROM mdl_logstore_standard_log
+                                       FROM {logstore_standard_log}
                                       WHERE eventname = :eventname2
                                  )";
 
@@ -152,7 +152,7 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                     'userenrolmentid' => $userenrolment->id,
                     'courseid' => $record->courseid,
                     'userid' => $record->userid,
-                    'modifierid' => $modifierid ? $modifierid : null,
+                    'modifierid' => $modifierid ? $modifierid : 0,
                     'change' => $change,
                     'status' => $userenrolment->status,
                     'timemodified' => $userenrolment->timemodified,
