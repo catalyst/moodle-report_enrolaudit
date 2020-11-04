@@ -33,4 +33,15 @@ $string['enrolmentsuspended'] = 'User enrolment set to suspended';
 $string['enrolmentupdated'] = 'User enrolment settings updated';
 $string['form:coursename'] = 'Course name';
 $string['pluginname'] = 'Enrolment audit';
+
+$string['privacy:metadata:report_enrolaudit'] = 'The Enrol audit plugin stores updates to user enrolments.';
+$string['privacy:metadata:report_enrolaudit:change'] = 'Type of change made to the enrolment record.';
+$string['privacy:metadata:report_enrolaudit:courseid'] = 'An identifier for a course';
+$string['privacy:metadata:report_enrolaudit:modifierid'] = 'The user ID of the user making the change.';
+$string['privacy:metadata:report_enrolaudit:status'] = 'Snapshot of the user enrolment status after the change.';
+$string['privacy:metadata:report_enrolaudit:tablesummary'] = 'The Enrol audit plugin stores updates to user enrolment.';
+$string['privacy:metadata:report_enrolaudit:timemodified'] = 'When the change was made.';
+$string['privacy:metadata:report_enrolaudit:userenrolmentid'] = 'ID linked to the user enrolment table.';
+$string['privacy:metadata:report_enrolaudit:userid'] = 'The user ID linked to the enrolment change.';
+
 $string['timemodified'] = 'Time modified';

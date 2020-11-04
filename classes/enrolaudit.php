@@ -274,11 +274,35 @@ class enrolaudit {
     }
 
     /**
-     * Setter for lastname
+     * Setter for lastname.
      *
      * @param string $lastname
      */
     public function set_lastname($lastname) {
         $this->lastname = $lastname;
+    }
+
+    /**
+     * Converts the numerical representation of a change to text.
+     *
+     * @param $change
+     * @return \lang_string|string
+     * @throws \coding_exception
+     */
+    public static function get_change_description($change) {
+        switch ($change) {
+            case self::ENROLMENT_DELETED:
+                return get_string('enrolmentdeleted', 'report_enrolaudit');
+            case self::ENROLMENT_CREATED:
+                return get_string('enrolmentcreated', 'report_enrolaudit');
+            case self::ENROLMENT_STATUS_SUSPENDED:
+                return get_string('enrolmentsuspended', 'report_enrolaudit');
+            case self::ENROLMENT_STATUS_ACTIVE:
+                return get_string('enrolmentactive', 'report_enrolaudit');
+            case self::ENROLMENT_UPDATED:
+                return get_string('enrolmentupdated', 'report_enrolaudit');
+            default:
+                return '';
+        }
     }
 }

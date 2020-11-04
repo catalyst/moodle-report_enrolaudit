@@ -87,20 +87,7 @@ class report_table extends table_sql {
      * @return  string
      */
     public function col_change($row) {
-        switch ($row->change) {
-            case enrolaudit::ENROLMENT_DELETED:
-                return get_string('enrolmentdeleted', 'report_enrolaudit');
-            case enrolaudit::ENROLMENT_CREATED:
-                return get_string('enrolmentcreated', 'report_enrolaudit');
-            case enrolaudit::ENROLMENT_STATUS_SUSPENDED:
-                return get_string('enrolmentsuspended', 'report_enrolaudit');
-            case enrolaudit::ENROLMENT_STATUS_ACTIVE:
-                return get_string('enrolmentactive', 'report_enrolaudit');
-            case enrolaudit::ENROLMENT_UPDATED:
-                return get_string('enrolmentupdated', 'report_enrolaudit');
-            default:
-                return '';
-        }
+        return enrolaudit::get_change_description($row->change);
     }
 
     /**
