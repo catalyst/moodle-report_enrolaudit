@@ -16,8 +16,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class report_enrolaudit_testcase extends advanced_testcase {
-    public function get_test_values() {
+trait report_enrolaudit_test_helper {
+    protected function get_test_values() {
         global $DB;
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
 

@@ -16,9 +16,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/report_enrolaudit_testcase.php');
+require_once(__DIR__ . '/base.php');
 
-class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase {
+class report_enrolaudit_adhoc_tasks_testcase extends advanced_testcase {
+    use report_enrolaudit_test_helper;
 
     public function test_import_enrolment_created_records() {
         global $DB;
@@ -49,7 +50,7 @@ class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase 
             $userenrolment = $DB->get_record('user_enrolments', ['userid' => $user->id]);
 
             $this->assertNotFalse($enrolaudit);
-            $this->assertEquals(\report_enrolaudit\enrolaudit::ENROLMENT_CREATED, $enrolaudit->change);
+            $this->assertEquals(\report_enrolaudit\enrolaudit::ENROLMENT_CREATED, $enrolaudit->changetype);
             $this->assertEquals($course->id, $enrolaudit->courseid);
 
             if ($userenrolment) {
@@ -93,23 +94,23 @@ class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase 
         $updatedrecordsql = "SELECT COUNT(*)
                                FROM {report_enrolaudit}
                               WHERE userid = :userid
-                                AND change <> :change";
+                                AND changetype <> :changetype";
 
         // Test the first user. They have a record in user enrolments and the log.
         $user1enrolment = $DB->get_record('user_enrolments', ['userid' => $users[0]->id]);
         $user1enrolaudit = $DB->get_record('report_enrolaudit', [
             'userid' => $users[0]->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_STATUS_SUSPENDED
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_STATUS_SUSPENDED
         ]);
 
-        $user1updatedrecordcount = $DB->count_records_sql($updatedrecordsql, [
+        $user1recordcount = $DB->count_records_sql($updatedrecordsql, [
             'userid' => $users[0]->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED
         ]);
 
         $this->assertNotFalse($user1enrolaudit);
         $this->assertEquals($course->id, $user1enrolaudit->courseid);
-        $this->assertEquals(1, $user1updatedrecordcount);
+        $this->assertEquals(1, $user1recordcount);
 
         $this->assertEquals($user1enrolment->id, $user1enrolaudit->userenrolmentid);
         $this->assertEquals(ENROL_USER_SUSPENDED, $user1enrolaudit->status);
@@ -118,17 +119,17 @@ class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase 
         $user2enrolment = $DB->get_record('user_enrolments', ['userid' => $users[1]->id]);
         $user2enrolaudit = $DB->get_record('report_enrolaudit', [
             'userid' => $users[1]->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_STATUS_SUSPENDED
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_STATUS_SUSPENDED
         ]);
 
-        $user2updatedrecordcount = $DB->count_records_sql($updatedrecordsql, [
+        $user2recordcount = $DB->count_records_sql($updatedrecordsql, [
             'userid' => $users[1]->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED
         ]);
 
         $this->assertNotFalse($user2enrolaudit);
         $this->assertEquals($course->id, $user2enrolaudit->courseid);
-        $this->assertEquals(2, $user2updatedrecordcount);
+        $this->assertEquals(2, $user2recordcount);
 
         $this->assertEquals($user2enrolment->id, $user2enrolaudit->userenrolmentid);
         $this->assertEquals(ENROL_USER_SUSPENDED, $user2enrolaudit->status);
@@ -137,18 +138,18 @@ class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase 
         $user3enrolment = $DB->get_record('user_enrolments', ['userid' => $users[2]->id]);
         $user3enrolaudit = $DB->get_record('report_enrolaudit', [
             'userid' => $users[2]->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_UPDATED
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_UPDATED
         ]);
 
-        $user3updatedrecordcount = $DB->count_records_sql($updatedrecordsql, [
+        $user3recordcount = $DB->count_records_sql($updatedrecordsql, [
             'userid' => $users[2]->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED
         ]);
 
         $this->assertNotFalse($user3enrolaudit);
         $this->assertFalse($user3enrolment);
         $this->assertEquals($course->id, $user3enrolaudit->courseid);
-        $this->assertEquals(1, $user3updatedrecordcount);
+        $this->assertEquals(1, $user3recordcount);
 
         // Is a historic record so we cannot know what the status was.
         $this->assertEquals(ENROL_USER_ACTIVE, $user3enrolaudit->status);
@@ -174,12 +175,12 @@ class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase 
         $this->run_adhoc_task();
 
         // Check the record has been added.
-        $deletedenrolmentrecord = $DB->get_record('report_enrolaudit', [
+        $deletedrecord = $DB->get_record('report_enrolaudit', [
             'userid' => $user->id,
-            'change' => \report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
+            'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
         ]);
 
-        $this->assertNotFalse($deletedenrolmentrecord);
+        $this->assertNotFalse($deletedrecord);
 
     }
 

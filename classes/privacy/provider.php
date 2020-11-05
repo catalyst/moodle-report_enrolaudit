@@ -59,7 +59,7 @@ class provider implements
                 'courseid' => 'privacy:metadata:report_enrolaudit:courseid',
                 'userid' => 'privacy:metadata:report_enrolaudit:userid',
                 'modifierid' => 'privacy:metadata:report_enrolaudit:modifierid',
-                'change' => 'privacy:metadata:report_enrolaudit:change',
+                'changetype' => 'privacy:metadata:report_enrolaudit:change',
                 'status' => 'privacy:metadata:report_enrolaudit:status',
                 'timemodified' => 'privacy:metadata:report_enrolaudit:timemodified'
             ],
@@ -152,7 +152,7 @@ class provider implements
             $enrolauditrecords[$record->courseid]->entries[] = [
                 'course' => format_string($record->fullname, true, ['context' => $context]),
                 'userenrolmentid' => $record->userenrolmentid,
-                'change' => enrolaudit::get_change_description($record->change),
+                'changetype' => enrolaudit::get_change_description($record->change),
                 'status' => $record->status,
                 'timemodified' => \core_privacy\local\request\transform::datetime($record->timemodified),
             ];

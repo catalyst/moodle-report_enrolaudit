@@ -47,8 +47,8 @@ class report_enrolaudit_observer {
             'courseid' => $event->courseid,
             'userid' => $event->relateduserid,
             'modifierid' => $event->userid,
-            'change' => report_enrolaudit\enrolaudit::ENROLMENT_CREATED,
-            'status' => report_enrolaudit\enrolaudit::get_current_status($event->objectid),
+            'changetype' => (string)report_enrolaudit\enrolaudit::ENROLMENT_CREATED,
+            'status' => (string)report_enrolaudit\enrolaudit::get_current_status($event->objectid),
             'timemodified' => $event->timecreated
         ];
 
@@ -85,7 +85,7 @@ class report_enrolaudit_observer {
             'courseid' => $event->courseid,
             'userid' => $event->relateduserid,
             'modifierid' => $event->userid,
-            'change' => $change,
+            'changetype' => $change,
             'status' => $currentstatus,
             'timemodified' => $event->timecreated
         ];
@@ -109,7 +109,7 @@ class report_enrolaudit_observer {
             'courseid' => $event->courseid,
             'userid' => $event->relateduserid,
             'modifierid' => $event->userid,
-            'change' => report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
+            'changetype' => report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
             'status' => $event->other['userenrolment']['status'],
             'timemodified' => $event->timecreated
         ];

@@ -53,7 +53,7 @@ class report_table extends table_sql {
         }
 
         $columns = array_merge($columns, [
-            'change',
+            'changetype',
             'modifierid',
             'timemodified'
         ]);
@@ -86,7 +86,7 @@ class report_table extends table_sql {
      * @param   \stdClass $row
      * @return  string
      */
-    public function col_change($row) {
+    public function col_changetype($row) {
         return enrolaudit::get_change_description($row->change);
     }
 

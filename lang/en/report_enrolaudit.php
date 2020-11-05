@@ -35,7 +35,7 @@ $string['form:coursename'] = 'Course name';
 $string['pluginname'] = 'Enrolment audit';
 
 $string['privacy:metadata:report_enrolaudit'] = 'The Enrol audit plugin stores updates to user enrolments.';
-$string['privacy:metadata:report_enrolaudit:change'] = 'Type of change made to the enrolment record.';
+$string['privacy:metadata:report_enrolaudit:changetype'] = 'Type of change made to the enrolment record.';
 $string['privacy:metadata:report_enrolaudit:courseid'] = 'An identifier for a course';
 $string['privacy:metadata:report_enrolaudit:modifierid'] = 'The user ID of the user making the change.';
 $string['privacy:metadata:report_enrolaudit:status'] = 'Snapshot of the user enrolment status after the change.';

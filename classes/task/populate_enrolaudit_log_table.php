@@ -93,7 +93,7 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                 'courseid' => $record->courseid,
                 'userid' => $record->enrolleduserid,
                 'modifierid' => $record->modifierid,
-                'change' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED,
+                'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_CREATED,
                 'status' => ENROL_USER_ACTIVE,
                 'timemodified' => $record->timecreated,
             ];
@@ -141,20 +141,20 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                 }
 
                 // Try to get the modifier id from the logstore if it exists.
-                $logstoremodifieridsql = "SELECT userid
+                $modifieridsql = "SELECT userid
                                             FROM {logstore_standard_log}
                                            WHERE objectid = :userenrolmentid
                                              AND eventname = :eventname
                                              AND timecreated >= :enrolmentupdatedtime";
 
-                $modifierid = $DB->get_field_sql($logstoremodifieridsql, $logstoreparams);
+                $modifierid = $DB->get_field_sql($modifieridsql, $logstoreparams);
 
                 $log = (object)[
                     'userenrolmentid' => $userenrolment->id,
                     'courseid' => $record->courseid,
                     'userid' => $record->userid,
                     'modifierid' => $modifierid ? $modifierid : 0,
-                    'change' => $change,
+                    'changetype' => $change,
                     'status' => $userenrolment->status,
                     'timemodified' => $userenrolment->timemodified,
                 ];
@@ -178,7 +178,7 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                     'courseid' => $record->courseid,
                     'userid' => $record->userid,
                     'modifierid' => $logstorerecord->modifierid,
-                    'change' => \report_enrolaudit\enrolaudit::ENROLMENT_UPDATED,
+                    'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_UPDATED,
                     'status' => $record->status,
                     'timemodified' => $logstorerecord->timecreated,
                 ];
@@ -207,7 +207,7 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                 'courseid' => $record->courseid,
                 'userid' => $record->enrolleduserid,
                 'modifierid' => $record->modifierid,
-                'change' => \report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
+                'changetype' => \report_enrolaudit\enrolaudit::ENROLMENT_DELETED,
                 'status' => ENROL_USER_ACTIVE,
                 'timemodified' => $record->timecreated,
             ];

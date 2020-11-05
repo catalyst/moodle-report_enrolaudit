@@ -98,7 +98,7 @@ class enrolaudit {
             u.id AS userid,
             courseid,
             c.fullname AS coursename,
-            re.change,
+            re.changetype,
             modifierid,
             re.timemodified,
             $userfields,
@@ -134,7 +134,7 @@ class enrolaudit {
      * @return string
      */
     public function get_where_sql() {
-        $where = "re.change != :initialrecord";
+        $where = "re.changetype != :initialrecord";
         $this->params['initialrecord'] = self::ENROLMENT_INITIAL;
 
         if ($this->courseid) {

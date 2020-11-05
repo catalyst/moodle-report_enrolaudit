@@ -47,7 +47,7 @@ class report_enrolaudit_renderer extends plugin_renderer_base {
                 CONCAT(u.firstname, ' ', u.lastname) as fullname
             FROM {report_enrolaudit} re
                 JOIN {user} u ON re.userid = u.id
-            WHERE re.change != :initialstatus
+            WHERE re.changetype != :initialstatus
         ";
         $params = ['initialstatus' => report_enrolaudit\enrolaudit::ENROLMENT_INITIAL];
 
