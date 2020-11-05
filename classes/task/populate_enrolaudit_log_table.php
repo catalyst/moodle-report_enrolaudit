@@ -111,15 +111,16 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
 
         foreach ($rs as $record) {
 
+            // Get the current enrolment record if it exists.
             $userenrolmentsql = "SELECT *
                                    FROM {user_enrolments}
                                   WHERE id = :userenrolmentid
                                     AND timemodified <> timecreated";
-
             $userenrolment = $DB->get_record_sql($userenrolmentsql, ['userenrolmentid' => $record->userenrolmentid]);
 
-            $logstoresql = "SELECT objectid AS userenrolmentid, courseid, relateduserid AS enrolleduserid,
-                                   userid AS modifierid, timecreated AS timemodified
+            // Get enrolment updates from the logs.
+            $logstoresql = "SELECT id, objectid AS userenrolmentid, courseid, relateduserid AS enrolleduserid,
+                                   userid AS modifierid, timecreated
                               FROM {logstore_standard_log}
                              WHERE eventname = :eventname
                                AND objectid = :userenrolmentid";
@@ -129,7 +130,7 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
             ];
 
             if ($userenrolment) {
-                // Add the latest user enrolment record to the logs.
+                // Ignore the most recent log as that's stored in the user enrolment table already.
                 $logstoresql .= " AND timecreated < :enrolmentupdatedtime";
                 $logstoreparams['enrolmentupdatedtime'] = $userenrolment->timemodified;
 
@@ -139,7 +140,7 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                     $change = \report_enrolaudit\enrolaudit::ENROLMENT_UPDATED;
                 }
 
-                // Try to get the modfierid from the logstore if it exists.
+                // Try to get the modifier id from the logstore if it exists.
                 $logstoremodifieridsql = "SELECT userid
                                             FROM {logstore_standard_log}
                                            WHERE objectid = :userenrolmentid
@@ -162,10 +163,10 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
             }
 
             // Attempt to get historical data if it still exists in DB.
-
             $logstorerecords = $DB->get_records_sql($logstoresql, $logstoreparams);
 
             if (!$logstorerecords) {
+                // No updates to user enrolment.
                 continue;
             }
 
@@ -175,8 +176,8 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
                 $log = (object)[
                     'userenrolmentid' => $record->userenrolmentid,
                     'courseid' => $record->courseid,
-                    'userid' => $record->enrolleduserid,
-                    'modifierid' => $logstorerecord->userid,
+                    'userid' => $record->userid,
+                    'modifierid' => $logstorerecord->modifierid,
                     'change' => \report_enrolaudit\enrolaudit::ENROLMENT_UPDATED,
                     'status' => $record->status,
                     'timemodified' => $logstorerecord->timecreated,
