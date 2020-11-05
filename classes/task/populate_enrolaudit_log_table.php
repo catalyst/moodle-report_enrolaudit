@@ -52,13 +52,10 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
         // This is needed as a point of comparison when there's a new change.
         // The initial record gets stored with a change status that won't appear in the report.
 
-        $numrecords = $DB->count_records('report_enrolaudit');
+        $this->insert_enrol_create_records();
+        $this->insert_enrol_update_records();
+        $this->insert_enrol_deleted_records();
 
-        if (!$numrecords) {
-            $this->insert_enrol_create_records();
-            $this->insert_enrol_update_records();
-            $this->insert_enrol_deleted_records();
-        }
     }
 
     private function insert_enrol_create_records() {

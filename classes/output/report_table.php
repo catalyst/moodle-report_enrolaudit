@@ -87,7 +87,7 @@ class report_table extends table_sql {
      * @return  string
      */
     public function col_changetype($row) {
-        return enrolaudit::get_change_description($row->change);
+        return enrolaudit::get_change_description($row->changetype);
     }
 
     /**
