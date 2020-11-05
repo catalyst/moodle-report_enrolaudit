@@ -16,7 +16,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class report_enrolaudit_testcase extends advanced_testcase {
+require_once(__DIR__ . '/report_enrolaudit_testcase.php');
+
+class report_enrolaudit_adhoc_tasks_testcase extends report_enrolaudit_testcase {
 
     public function test_import_enrolment_created_records() {
         global $DB;
@@ -181,41 +183,6 @@ class report_enrolaudit_testcase extends advanced_testcase {
 
     }
 
-    private function get_test_values() {
-        global $DB;
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-
-        $users[] = $this->getDataGenerator()->create_user();
-        $users[] = $this->getDataGenerator()->create_user();
-        $users[] = $this->getDataGenerator()->create_user();
-
-        $category = $this->getDataGenerator()->create_category();
-
-        $course = $this->getDataGenerator()->create_course(array(
-            'shortname' => 'course1',
-            'category' => $category->id,
-        ));
-
-        $enrolinstance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*', MUST_EXIST);
-        $manual = enrol_get_plugin('manual');
-
-        return [
-            $users,
-            $course,
-            $enrolinstance,
-            $manual,
-            $studentrole
-        ];
-    }
-
-    private function run_adhoc_task() {
-        global $DB;
-        // Simulate fresh install and run adhoc task.
-        $DB->delete_records('report_enrolaudit');
-        $adhoctask = new \report_enrolaudit\task\populate_enrolaudit_log_table();
-        $adhoctask->execute();
-    }
-
     private function add_logstore_entry($course, $user, $eventname, $timecreated = 0) {
         global $DB;
         $context = context_course::instance($course->id);
@@ -237,5 +204,13 @@ class report_enrolaudit_testcase extends advanced_testcase {
             'timecreated' => $timecreated,
         ];
         $DB->insert_record('logstore_standard_log', $record);
+    }
+
+    private function run_adhoc_task() {
+        global $DB;
+        // Simulate fresh install and run adhoc task.
+        $DB->delete_records('report_enrolaudit');
+        $adhoctask = new \report_enrolaudit\task\populate_enrolaudit_log_table();
+        $adhoctask->execute();
     }
 }

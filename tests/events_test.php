@@ -16,7 +16,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class report_enrolaudit_events_testcase extends advanced_testcase {
+require_once(__DIR__ . '/report_enrolaudit_testcase.php');
+
+class report_enrolaudit_events_testcase extends report_enrolaudit_testcase {
 
     public function test_enrolment_created_records() {
         global $DB;
@@ -56,7 +58,7 @@ class report_enrolaudit_events_testcase extends advanced_testcase {
         }
     }
 
-    public function test_import_enrolment_updated_records() {
+    public function test_enrolment_updated_records() {
         global $DB;
 
         $this->resetAfterTest();
@@ -138,7 +140,7 @@ class report_enrolaudit_events_testcase extends advanced_testcase {
         $this->assertNotFalse($user2enrolauditupdated);
     }
 
-    public function test_import_enrolment_deleted_records() {
+    public function test_enrolment_deleted_records() {
         global $DB;
 
         $this->resetAfterTest();
@@ -161,32 +163,5 @@ class report_enrolaudit_events_testcase extends advanced_testcase {
 
         $this->assertNotFalse($deletedenrolmentrecord);
 
-    }
-
-    private function get_test_values() {
-        global $DB;
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-
-        $users[] = $this->getDataGenerator()->create_user();
-        $users[] = $this->getDataGenerator()->create_user();
-        $users[] = $this->getDataGenerator()->create_user();
-
-        $category = $this->getDataGenerator()->create_category();
-
-        $course = $this->getDataGenerator()->create_course(array(
-            'shortname' => 'course1',
-            'category' => $category->id,
-        ));
-
-        $enrolinstance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*', MUST_EXIST);
-        $manual = enrol_get_plugin('manual');
-
-        return [
-            $users,
-            $course,
-            $enrolinstance,
-            $manual,
-            $studentrole
-        ];
     }
 }
