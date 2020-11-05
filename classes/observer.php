@@ -66,27 +66,31 @@ class report_enrolaudit_observer {
     public static function user_enrolment_updated(\core\event\user_enrolment_updated $event) {
         global $DB;
 
-        if (report_enrolaudit\enrolaudit::status_has_changed($event->objectid)) {
-            $status = $event->get_record_snapshot('user_enrolments', $event->objectid)->status;
+        $currentstatus = \report_enrolaudit\enrolaudit::get_current_status($event->objectid);
 
-            if ($status == ENROL_USER_SUSPENDED) {
+        if (report_enrolaudit\enrolaudit::status_has_changed($event->objectid)) {
+
+            if ($currentstatus == ENROL_USER_SUSPENDED) {
                 $change = report_enrolaudit\enrolaudit::ENROLMENT_STATUS_SUSPENDED;
             } else {
                 $change = report_enrolaudit\enrolaudit::ENROLMENT_STATUS_ACTIVE;
             }
 
-            $record = (object)[
-                'userenrolmentid' => $event->objectid,
-                'courseid' => $event->courseid,
-                'userid' => $event->relateduserid,
-                'modifierid' => $event->userid,
-                'change' => $change,
-                'status' => $status,
-                'timemodified' => $event->timecreated
-            ];
-
-            $DB->insert_record('report_enrolaudit', $record);
+        } else {
+            $change = report_enrolaudit\enrolaudit::ENROLMENT_UPDATED;
         }
+
+        $record = (object)[
+            'userenrolmentid' => $event->objectid,
+            'courseid' => $event->courseid,
+            'userid' => $event->relateduserid,
+            'modifierid' => $event->userid,
+            'change' => $change,
+            'status' => $currentstatus,
+            'timemodified' => $event->timecreated
+        ];
+
+        $DB->insert_record('report_enrolaudit', $record);
 
         return true;
     }

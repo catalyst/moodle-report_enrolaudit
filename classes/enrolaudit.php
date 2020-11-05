@@ -231,13 +231,16 @@ class enrolaudit {
             'report_enrolaudit',
             ['userenrolmentid' => $userenrolmentid],
             'timemodified DESC',
-            'status'
+            'status',
+            0,
+            1
         );
 
-        // We are only interested in the latest record.
-        $previousrecord = array_shift($records);
+        if (isset($records[0])) {
+            return $records[0]->status;
+        }
 
-        return $previousrecord->status;
+        return false;
     }
 
     /**
@@ -252,7 +255,11 @@ class enrolaudit {
         $currentstatus = self::get_current_status($userenrolmentid);
         $previousstatus = self::get_previous_status($userenrolmentid);
 
-        return $currentstatus != $previousstatus;
+        if ($previousstatus !== false) {
+            return $currentstatus != $previousstatus;
+        }
+
+        return false;
     }
 
     /**
