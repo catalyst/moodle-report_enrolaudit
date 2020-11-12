@@ -46,8 +46,6 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
      * @throws \dml_exception
      */
     public function execute() {
-        global $DB;
-
         // Populate the log table with current status.
         // This is needed as a point of comparison when there's a new change.
         // The initial record gets stored with a change status that won't appear in the report.
@@ -139,10 +137,10 @@ class populate_enrolaudit_log_table extends \core\task\adhoc_task {
 
                 // Try to get the modifier id from the logstore if it exists.
                 $modifieridsql = "SELECT userid
-                                            FROM {logstore_standard_log}
-                                           WHERE objectid = :userenrolmentid
-                                             AND eventname = :eventname
-                                             AND timecreated >= :enrolmentupdatedtime";
+                                    FROM {logstore_standard_log}
+                                   WHERE objectid = :userenrolmentid
+                                     AND eventname = :eventname
+                                     AND timecreated >= :enrolmentupdatedtime";
 
                 $modifierid = $DB->get_field_sql($modifieridsql, $logstoreparams);
 

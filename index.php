@@ -36,12 +36,14 @@ $download = optional_param('download', '', PARAM_ALPHA); // Report download opti
 
 $params = [];
 $course = null;
+$filterfields = ['realname' => 0, 'lastname' => 1, 'firstname' => 1];
 if (!empty($id)) {
     // Course level.
     $params['id'] = $id;
     $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
     $context = context_course::instance($course->id);
 } else {
+    $filterfields['coursename'] = 0;
     $context = context_system::instance();
 }
 
@@ -57,45 +59,24 @@ $heading = get_string('enrolaudit', 'report_enrolaudit');
 $url = new moodle_url('/report/enrolaudit/index.php', $params);
 
 $PAGE->set_context($context);
-$PAGE->set_url('/report/enrolaudit/index.php');
+$PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 $PAGE->set_title($heading);
 $PAGE->set_heading($heading);
 
-$output = $PAGE->get_renderer('report_enrolaudit');
-
-$enrolaudit = new report_enrolaudit\enrolaudit($course, $context, $userid, $url);
+$filters = new \report_enrolaudit\output\filters($filterfields, $url);
+$enrolaudit = new report_enrolaudit\enrolaudit($course, $context, $userid, $url, $filters);
 
 $table = new report_enrolaudit\output\report_table($course);
 $table->is_downloading($download, $enrolaudit->get_filename(), $heading);
 
 // Don't output markup if we are downloading.
 if (!$table->is_downloading()) {
-    echo $output->header();
-    echo $output->heading($heading);
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading($heading);
 
-    if (!$id) {
-        // Site level filters.
-        $mform = new \report_enrolaudit\form\filters(null, array('sitelevel' => !(bool)$id));
-        $data = $mform->get_data();
-
-        if ($data) {
-            if ($data->firstname) {
-                $enrolaudit->set_firstname($data->firstname);
-            }
-            if ($data->lastname) {
-                $enrolaudit->set_lastname($data->lastname);
-            }
-            if ($data->coursename) {
-                $enrolaudit->set_coursename($data->coursename);
-            }
-        }
-
-        $mform->display();
-    } else {
-        // Course level filters.
-        $output->print_user_selector($enrolaudit);
-    }
+    $filters->display_add();
+    $filters->display_active();
 }
 
 // Set up the table with the data and display it.

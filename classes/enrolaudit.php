@@ -69,19 +69,24 @@ class enrolaudit {
     /** @var array parameters for filtering the report */
     protected $params;
 
+    /** @var output\filters filter object for the report */
+    protected $filters;
+
     /**
      * Set up the enrolaudit class.
      *
      * @param object $course course object if we are in course level view.
      * @param context $context context the report is running in.
      * @param int $userid user id if report is filtered by user.
+     * @param output\filters $filters filter object for the report.
      * @param \moodle_url $baseurl base url for the report.
      */
-    public function __construct($course, $context, $userid, $baseurl) {
+    public function __construct($course, $context, $userid, $baseurl, $filters) {
         $this->courseid = $course ? $course->id : 0;
         $this->context = $context;
         $this->baseurl = $baseurl;
         $this->userid = $userid;
+        $this->filters = $filters;
     }
 
     /**
@@ -141,21 +146,12 @@ class enrolaudit {
             $where .= " AND c.id = :courseid";
             $this->params['courseid'] = $this->courseid;
         }
-        if ($this->userid) {
-            $where .= " AND u.id = :userid";
-            $this->params['userid'] = $this->userid;
-        }
-        if ($this->firstname) {
-            $where .= " AND LOWER(u.firstname) LIKE :firstname";
-            $this->params['firstname'] = '%'.strtolower($this->firstname).'%';
-        }
-        if ($this->lastname) {
-            $where .= " AND LOWER(u.lastname) LIKE :lastname";
-            $this->params['lastname'] = '%'.strtolower($this->lastname).'%';
-        }
-        if ($this->coursename) {
-            $where .= " AND LOWER(c.fullname) LIKE :coursename";
-            $this->params['coursename'] = '%'.strtolower($this->coursename).'%';
+
+        list($filtersql, $filterparams) = $this->filters->get_sql_filter();
+
+        if ($filtersql) {
+            $where .= ' AND ' . $filtersql;
+            $this->params = array_merge($this->params, $filterparams);
         }
 
         return $where;

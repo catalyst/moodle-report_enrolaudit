@@ -91,13 +91,14 @@ class report_table extends table_sql {
     }
 
     /**
-     * Format the modifierid cell. This is the time the update was made.
+     * Format the modifierid cell. This is the userid that made the change.
      *
      * @param   \stdClass $row
      * @return  string
      */
     public function col_modifierid($row) {
         $modifier = new \stdClass();
+        $modifier->userid = $row->modifierid;
 
         foreach (get_all_user_name_fields() as $namefield) {
             if (isset($row->{'modifier'.$namefield})) {
@@ -105,7 +106,7 @@ class report_table extends table_sql {
             }
         }
 
-        return fullname($modifier);
+        return $this->col_fullname($modifier);
     }
 
     /**
@@ -115,10 +116,7 @@ class report_table extends table_sql {
      * @return  string
      */
     public function col_coursename($row) {
-        return \html_writer::link(
-            new \moodle_url('/report/enrolaudit/index.php', ['id' => $row->courseid]),
-            $row->coursename
-        );
+        return \html_writer::link(course_get_url($row->courseid), $row->coursename);
     }
 
     /**
