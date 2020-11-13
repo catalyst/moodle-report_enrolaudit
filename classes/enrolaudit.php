@@ -118,9 +118,9 @@ class enrolaudit {
      */
     public function get_from_sql() {
         return "{report_enrolaudit} re
-                    JOIN {user} u ON u.id = re.userid
-                    JOIN {user} m ON m.id = re.modifierid
-                    JOIN {course} c ON c.id = re.courseid";
+           JOIN {user} u ON u.id = re.userid
+           JOIN {user} m ON m.id = re.modifierid
+           JOIN {course} c ON c.id = re.courseid";
     }
 
     /**

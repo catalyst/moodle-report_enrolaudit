@@ -49,6 +49,8 @@ class filters extends \user_filtering {
                 return new \user_filter_text('firstname', get_string('firstname'), $advanced, 'u.firstname');
             case 'coursename':
                 return new \user_filter_text('coursename', get_string('course'), $advanced, 'c.fullname');
+            case 'idnumber':
+                return new \user_filter_text('idnumber', get_string('idnumber'), $advanced, 'u.idnumber');
             default:
                 return null;
         }

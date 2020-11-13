@@ -36,7 +36,7 @@ $download = optional_param('download', '', PARAM_ALPHA); // Report download opti
 
 $params = [];
 $course = null;
-$filterfields = ['realname' => 0, 'lastname' => 1, 'firstname' => 1];
+$filterfields = ['realname' => 0, 'lastname' => 1, 'firstname' => 1, 'idnumber' => 1];
 if (!empty($id)) {
     // Course level.
     $params['id'] = $id;
