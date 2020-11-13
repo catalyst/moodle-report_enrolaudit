@@ -98,12 +98,15 @@ class report_table extends table_sql {
      */
     public function col_modifierid($row) {
         $modifier = new \stdClass();
-        $modifier->userid = $row->modifierid;
+        $modifier->{$this->useridfield} = $row->modifierid;
 
         foreach (get_all_user_name_fields() as $namefield) {
             if (isset($row->{'modifier'.$namefield})) {
                 $modifier->$namefield = $row->{'modifier'.$namefield};
+            } else {
+                $modifier->$namefield = null;
             }
+
         }
 
         return $this->col_fullname($modifier);
@@ -116,6 +119,9 @@ class report_table extends table_sql {
      * @return  string
      */
     public function col_coursename($row) {
+        if ($this->download) {
+            return $row->coursename;
+        }
         return \html_writer::link(course_get_url($row->courseid), $row->coursename);
     }
 
