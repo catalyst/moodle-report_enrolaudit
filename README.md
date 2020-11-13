@@ -1,5 +1,5 @@
-<a href="https://travis-ci.com/jamie-catalyst/moodle-report_enrolaudit">
-<img src="https://travis-ci.com/jamie-catalyst/moodle-report_enrolaudit.svg?branch=master">
+<a href="https://travis-ci.com/catalyst/moodle-report_enrolaudit">
+<img src="https://travis-ci.com/catalyst/moodle-report_enrolaudit.svg?branch=master">
 </a>
 
 Moodle Enrol Audit Report
@@ -53,7 +53,7 @@ Installation
 1. Use git to clone it into your source:
 
    ```sh
-   git clone git@github.com:jamie-catalyst/moodle-report_enrolaudit.git report/enrolaudit
+   git clone git@github.com:catalyst/moodle-report_enrolaudit.git report/enrolaudit
    ```
 
 2. Then run the Moodle upgrade.
@@ -69,7 +69,7 @@ Support
 
 If you have issues please log them in github here
 
-https://github.com/jamie-catalyst/moodle-report_enrolaudit/issues
+https://github.com/catalyst/moodle-report_enrolaudit/issues
 
 This plugin was developed by Catalyst IT Australia:
 
