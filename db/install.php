@@ -25,6 +25,8 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_report_enrolaudit_install() {
-    $populatetask = new \report_enrolaudit\task\populate_enrolaudit_log_table();
-    \core\task\manager::queue_adhoc_task($populatetask);
+    if (!PHPUNIT_TEST) { // I hate this anti-pattern.
+        $populatetask = new \report_enrolaudit\task\populate_enrolaudit_log_table();
+        \core\task\manager::queue_adhoc_task($populatetask);
+    }
 }
