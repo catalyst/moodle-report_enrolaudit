@@ -27,9 +27,10 @@ namespace report_enrolaudit\privacy;
 defined('MOODLE_INTERNAL') || die();
 
 use core_privacy\local\metadata\collection;
+use core_privacy\local\request\contextlist;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
-use core_privacy\local\request\contextlist;
+use core_privacy\local\request\writer;
 use core_privacy\local\request\userlist;
 use report_enrolaudit\enrolaudit;
 
@@ -41,9 +42,8 @@ use report_enrolaudit\enrolaudit;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-        \core_privacy\local\metadata\provider,
-        \core_privacy\local\request\core_userlist_provider,
-        \core_privacy\local\request\subsystem\provider {
+\core_privacy\local\metadata\provider,
+\core_privacy\local\request\data_provider {
 
     /**
      * Returns meta data about this system.
@@ -59,7 +59,7 @@ class provider implements
                 'courseid' => 'privacy:metadata:report_enrolaudit:courseid',
                 'userid' => 'privacy:metadata:report_enrolaudit:userid',
                 'modifierid' => 'privacy:metadata:report_enrolaudit:modifierid',
-                'changetype' => 'privacy:metadata:report_enrolaudit:change',
+                'changetype' => 'privacy:metadata:report_enrolaudit:changetype',
                 'status' => 'privacy:metadata:report_enrolaudit:status',
                 'timemodified' => 'privacy:metadata:report_enrolaudit:timemodified'
             ],
